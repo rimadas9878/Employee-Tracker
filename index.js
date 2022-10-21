@@ -1,10 +1,12 @@
+const inquirer = require('inquirer');
+
 const questions = () => {
     inquirer.prompt([
         {
             type: 'List',
             name: 'options',
-            message: 'Which option would you like to select',
-            choices: ['view all departments', 'view all roles', 'view all employees', 'add a department', 'add a role', 'add an employee', 'update an employee role']
+            message: 'Which option would you like to select?',
+            choices: ['View All Departments', 'View All Roles', 'View All Employees', 'Add a Department', 'Add a Role', 'Add an Employee', 'Update an Employee Role', 'Quit']
         }
     ])
 }
