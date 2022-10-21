@@ -1,116 +1,51 @@
+//Adding the inquirer package to view the questions in command-line
 const inquirer = require('inquirer');
 
-const questions = () => {
+//Express package makes working with API easy
+const express =  require('express');
+const app = express();
+
+// Express middleware
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+
+//for .env file to work
+require('dotenv').config()
+
+//Import and require mysql2
+const mysql = require('mysql2');
+
+
+//Database connection, adding the parameters from .env file
+const db = mysql.createConnection({
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+},
+console.log("Connected to employee_db database")
+);
+
+
+function questions() {
     inquirer.prompt([
         {
-            type: 'List',
-            name: 'options',
+            type: 'list',
+            name: 'optionsForUser',
             message: 'Which option would you like to select?',
-            choices: ['View All Departments', 'View All Roles', 'View All Employees', 'Add a Department', 'Add a Role', 'Add an Employee', 'Update an Employee Role', 'Quit']
+            choices: ['View All Departments', 'View All Roles', 'View All Employees', 'Add a Department', 'Add a Role', 'Add an Employee', 'Update an Employee Role', 'Quit'],
         }
-    ])
+    ]).then(({options}) => {
+        if(options === 'View All Departments'){
+            return `SELECT * FROM department;`
+        }
+        else if (options === 'View All Roles'){
+            return 'SELECT * FROM role;'
+        }
+        else if (options === 'View All Employees'){
+            return 'SELECT * FROM employee;'
+        }
+    })
+
 }
 
-const departmentName = () => {
-    inquirer.prompt([
-        {
-            type: 'input',
-            name: 'name_Of_Department',
-            message: 'Enter the name of the department',
-            validate: (nameOfDepartment) => {
-                if (nameOfDepartment === '') {
-                    return 'Please enter name of the department'
-                }
-                return true
-            }
-        }
-    ])
-}
-
-const role = () => {
-    inquirer.prompt([
-        {
-            type: 'input',
-            name: 'employee_Name',
-            message: 'Enter the name of the employee',
-            validate: (employeeName) => {
-                if (employeeName === '') {
-                    return 'Please enter name of the employee'
-                }
-                return true
-            }
-        },
-        {
-            type: 'input',
-            name: 'employee_Salary',
-            message: 'Enter the salary of the employee',
-            validate: (employeeSalary) => {
-                if (employeeSalary === '') {
-                    return 'Please enter salary of the employee'
-                }
-                return true
-            }
-        },
-        {
-            type: 'input',
-            name: 'employee_Department',
-            message: 'Enter the department name of the employee',
-            validate: (employeeDepartment) => {
-                if (employeeDepartment === '') {
-                    return 'Please enter department name of the employee'
-                }
-                return true
-            }
-        }
-
-    ])
-}
-
-const employee = () => {
-    inquirer.prompt([
-        {
-            type: 'input',
-            name: 'employee_First_Name',
-            message: 'Enter the first name of the employee',
-            validate: (employeeFirstName) => {
-                if (employeeFirstName === '') {
-                    return 'Please enter the first name of the employee'
-                }
-                return true
-            }
-        },
-        {
-            type: 'input',
-            name: 'employee_Last_Name',
-            message: 'Enter the last name of the employee',
-            validate: (employeeLastName) => {
-                if (employeeLastName === '') {
-                    return 'Please enter the last name of the employee'
-                }
-                return true
-            }
-        },
-        {
-            type: 'input',
-            name: 'employee_Role',
-            message: 'Enter the role of the employee',
-            validate: (employeeRole) => {
-                if (employeeRole === '') {
-                    return 'Please enter the role of the employee'
-                }
-                return true
-            }
-        },
-        {
-            type: 'input',
-            name: 'manager_Name',
-            message: 'Enter the name of the manager',
-            validate: (managerName) => {
-                if (managerName === '') {
-                    return 'Please enter the name of the manager'
-                }
-                return true
-            }
-        }
-    ])
-}
+questions();
