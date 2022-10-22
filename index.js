@@ -34,18 +34,26 @@ function questions() {
             message: 'Which option would you like to select?',
             choices: ['View All Departments', 'View All Roles', 'View All Employees', 'Add a Department', 'Add a Role', 'Add an Employee', 'Update an Employee Role', 'Quit'],
         }
-    ]).then(({options}) => {
-        if(options === 'View All Departments'){
-            return `SELECT * FROM department;`
+    ]).then(({optionsForUser}) => {       
+        if(optionsForUser === 'View All Departments'){
+            console.log("Displaying department table content")
+            db.query('SELECT * FROM department', function(err,result) {                
+                console.log(result);
+            })
         }
-        else if (options === 'View All Roles'){
-            return 'SELECT * FROM role;'
+        else if (optionsForUser === 'View All Roles'){
+            console.log("Displaying role table content")
+            db.query('SELECT * FROM role', function(err,result) {                
+                console.log(result);
+            })
         }
-        else if (options === 'View All Employees'){
-            return 'SELECT * FROM employee;'
+        else if (optionsForUser === 'View All Employees'){
+            console.log("Displaying Employee table content")
+            db.query('SELECT * FROM employee', function(err,result) {                
+                console.log(result);
+            })
         }
     })
-
 }
 
 questions();
