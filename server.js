@@ -33,7 +33,7 @@ const db = mysql.createConnection({
 console.log("Connected to employee_db database")
 );
 
-//Questions to add a department
+//Code to add a department
 const departmentName = () => {
     inquirer.prompt([
         {
@@ -47,10 +47,25 @@ const departmentName = () => {
                 return true
             }
         }
-    ])
+    ]).then(answer => {
+        const sql = `INSERT INTO department(name)
+                     VALUE (?)`;
+        
+        db.query(sql, answer.name_Of_Department, (err,result) => {
+            if (err) {
+                res.status(400).json({ error: err.message });
+                return;
+            }
+            else{
+                console.log('Suceessfully Added "' + answer.name_Of_Department + '" to the department database')
+                choices();
+            }
+
+        })
+    })
 }
 
-//Questions to add a role
+//Code to add a role
 const role = () => {
     inquirer.prompt([
         {
@@ -90,7 +105,7 @@ const role = () => {
     ])
 }
 
-////Questions to add an employee
+//Code to add an employee
 const employee = () => {
     inquirer.prompt([
         {
