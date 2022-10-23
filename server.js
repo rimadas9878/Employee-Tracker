@@ -33,8 +33,55 @@ const db = mysql.createConnection({
 console.log("Connected to employee_db database")
 );
 
-//Code to add a department
-const departmentName = () => {
+//Code to display Department Table
+const departmentTableDisplay = () =>{
+    console.log("Displaying table content of Department")
+    const sql = `SELECT * FROM department`;
+    db.query( sql, (err,result) => {    
+        if (err) {
+            console.log(err)
+          }
+        else{
+            console.table(result);
+            choices();
+        }               
+    })
+}
+
+//Code to display role Table
+const roleTableDisplay = () =>{
+    console.log("Displaying table content of role")
+    const sql = `SELECT * FROM role`;
+    db.query(sql, (err,result) => {  
+        if (err) {
+            console.log(err)
+          }
+          else{
+            console.table(result);
+            choices();
+          }              
+        
+    })
+}
+
+//Code to display employee Table
+const employeeTableDisplay = () => {
+    console.log("Displaying table content of Employee")
+    const sql = `SELECT * FROM employee`
+    db.query(sql,(err,result) => {  
+        if (err) {
+            console.log(err)
+          }   
+        else{
+            console.table(result);
+            choices();
+        }                   
+    })
+}
+
+
+//Code to add a new department
+const addNewDepartmentName = () => {
     inquirer.prompt([
         {
             type: 'input',
@@ -53,11 +100,10 @@ const departmentName = () => {
         
         db.query(sql, answer.name_Of_Department, (err,result) => {
             if (err) {
-                res.status(400).json({ error: err.message });
-                return;
+                console.log(err)
             }
             else{
-                console.log('Suceessfully Added "' + answer.name_Of_Department + '" to the department database')
+                console.log('Suceessfully Added "' + answer.name_Of_Department + '" department to the database')
                 choices();
             }
 
@@ -65,48 +111,114 @@ const departmentName = () => {
     })
 }
 
-//Code to add a role
-const role = () => {
-    inquirer.prompt([
-        {
-            type: 'input',
-            name: 'employee_Name',
-            message: 'Enter the name of the employee',
-            validate: (employeeName) => {
-                if (employeeName === '') {
-                    return 'Please enter name of the employee'
+//Code to add a new role
+const addNewRole = () => {
+    const departmentData = [];
+    const sql = `SELECT id, name FROM department`;
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+          }
+        else{
+            result.forEach(department =>{
+                let departmentOutput = {
+                    name: department.name,
+                    id: department.id
                 }
-                return true
-            }
-        },
-        {
-            type: 'input',
-            name: 'employee_Salary',
-            message: 'Enter the salary of the employee',
-            validate: (employeeSalary) => {
-                if (employeeSalary === '') {
-                    return 'Please enter salary of the employee'
-                }
-                return true
-            }
-        },
-        {
-            type: 'input',
-            name: 'employee_Department',
-            message: 'Enter the department name of the employee',
-            validate: (employeeDepartment) => {
-                if (employeeDepartment === '') {
-                    return 'Please enter department name of the employee'
-                }
-                return true
-            }
-        }
+                departmentData.push(departmentOutput);
+            });
 
-    ])
-}
+            inquirer.prompt([
+                {
+                    type: 'input',
+                    name: 'employee_Role',
+                    message: 'Enter the employee role in the organization',
+                    validate: (employeeRole) => {
+                        if (employeeRole === '') {
+                            return 'Employee role cannot be blank'
+                        }
+                        return true
+                    }
+                },
+                {
+                    type: 'input',
+                    name: 'employee_Salary',
+                    message: 'Enter the employee salary',
+                    validate: (employeeSalary) => {
+                        if (employeeSalary === '') {
+                            return 'Employee salary field cannot be blank'
+                        }
+                        return true
+                    }
+                },
+                {
+                    type: 'list',
+                    name: 'department',
+                    message: 'Select the employee department',
+                    choices: departmentData
+                }
+            ]).then(roleAnswer => {
+                const sql = `INSERT INTO role (titleRole, salary_in_thousand, department_id)
+                             VALUES (?)`
+
+                const addedRole = 
+
+                db.query(sql,[[roleAnswer.employee_Role, roleAnswer.employee_Salary, roleAnswer.department.id]], (err, result) => {
+                    if (err){
+                        console.log(err)
+                    }
+                    else{
+                        console.log('Successfully added "' + roleAnswer.employee_Role + '" role to the database');
+                        choices();
+                    }
+                } )
+            })
+        }
+    })
+
+};
+        
+
 
 //Code to add an employee
 const employee = () => {
+    const outputForRole = [];
+    const roleDatabaseOutput = `SELECT * FROM role`;
+
+    db.query(roleDatabaseOutput, (err,result) =>{
+        if (err) {
+            console.log(err);
+          }
+        else{
+            result.forEach(role => {
+                let roleOutput = {
+                    id: role.id,
+                    titleRole: role.titleRole,
+                }
+                outputForRole.push(roleOutput);
+            })
+        }
+    })
+
+    const managerRole = [];
+    const outputFromEmployeeTable = `SELECT * FROM employee`;
+
+    db.query(outputFromEmployeeTable, (err,result) =>{
+        if (err) {
+            console.log(err);
+          }
+        else{
+            result.forEach(employee => {
+                let managerOutput = {
+                    id: employee.id,
+                    first_name: employee.first_name,
+                    last_name: employee.last_name
+                }
+                managerRole.push(managerOutput);
+            })
+        }
+    })
+
     inquirer.prompt([
         {
             type: 'input',
@@ -131,28 +243,32 @@ const employee = () => {
             }
         },
         {
-            type: 'input',
+            type: 'list',
             name: 'employee_Role',
-            message: 'Enter the role of the employee',
-            validate: (employeeRole) => {
-                if (employeeRole === '') {
-                    return 'Please enter the role of the employee'
-                }
-                return true
-            }
+            message: 'Select the employee role',
+            choices: outputForRole
         },
         {
-            type: 'input',
-            name: 'manager_Name',
-            message: 'Enter the name of the manager',
-            validate: (managerName) => {
-                if (managerName === '') {
-                    return 'Please enter the name of the manager'
-                }
-                return true
-            }
+            type: 'list',
+            name: 'employee_Manager',
+            message: 'Select the Manager of the added employee',
+            choices: managerRole
         }
-    ])
+    ]).then(answer => {
+        const sql = `INSERT INTO employee(first_name, last_name, role_id, manager_id)`
+
+        db.query(sql, [[answer.employee_First_Name, answer.employee_Last_Name, answer.employee_Role, answer.employee_Manager]], (err,result) => {
+            if (err){
+                console.log(err)
+            }
+            else{
+                
+                console.log('Successfully added "' + answer.first_name + '" to the employee database');
+                choices();
+            }
+        });
+
+    })
 }
 
 const choices = () => {
@@ -161,58 +277,38 @@ const choices = () => {
             type: 'list',
             name: 'optionsForUser',
             message: 'Which option would you like to select?',
-            choices: ['View All Departments', 'View All Roles', 'View All Employees', 'Add a Department', 'Add a Role', 'Add an Employee', 'Update an Employee Role', 'Quit'],
+            choices: ['View All Departments', 
+                      'View All Roles', 
+                      'View All Employees', 
+                      'Add a Department', 
+                      'Add a Role', 
+                      'Add an Employee', 
+                      'Update an Employee Role', 
+                      'Update an Employee Manager',
+                      'View employees by manager',
+                      'View employees by department',
+                      'Delete departments',
+                      'Delete role',
+                      'Delete employee',
+                      'View Combined salaries of all employees',
+                      'Quit'],
         }
     ]).then(({optionsForUser}) => {       
         if(optionsForUser === 'View All Departments'){
-            console.log("Displaying table content of Department")
-            const sql = `SELECT * FROM department`;
-            db.query( sql, (err,result) => {    
-                if (err) {
-                    res.status(400).json({ error: err.message });
-                    return;
-                  }
-                else{
-                    console.table(result);
-                    choices();
-                }               
-            })
+            departmentTableDisplay();
         }
         else if (optionsForUser === 'View All Roles'){
-            console.log("Displaying table content of role")
-            const sql = `SELECT * FROM role`;
-            db.query(sql, (err,result) => {  
-                if (err) {
-                    res.status(400).json({ error: err.message });
-                    return;
-                  }
-                  else{
-                    console.table(result);
-                    choices();
-                  }              
-                
-            })
+            roleTableDisplay();
         }
         else if (optionsForUser === 'View All Employees'){
-            console.log("Displaying table content of Employee")
-            const sql = `SELECT * FROM employee`
-            db.query(sql,(err,result) => {  
-                if (err) {
-                    res.status(400).json({ error: err.message });
-                    return;
-                  }   
-                else{
-                    console.table(result);
-                    choices();
-                }                   
-            })
+            employeeTableDisplay();
         }
         else if (optionsForUser === 'Add a Department'){
-            departmentName();
+            addNewDepartmentName();
 
         }
         else if (optionsForUser === 'Add a Role'){
-            role();
+            addNewRole();
         }
         else if (optionsForUser === 'Add an Employee'){
             employee();
@@ -220,6 +316,10 @@ const choices = () => {
         else if (optionsForUser === 'Update an Employee Role'){
 
         }
+        else if(optionsForUser === 'Delete departments'){
+            deleteDepartment();
+        }
+
         else if (optionsForUser === 'Quit'){
             return false;
         }
