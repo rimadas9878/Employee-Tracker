@@ -271,6 +271,40 @@ const employee = () => {
     })
 }
 
+//Adding code to delete department
+const deleteDepartment = () => {
+    
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'department_id',
+            message: 'Enter the department id which needs to be deleted',
+            validate: (DepartmentID) => {
+                if (DepartmentID === '') {
+                    return 'Please enter a department id'
+                }
+                else if(DepartmentID < 0){
+                    return 'Please enter a valid department id'
+                }
+                return true
+            }
+        }
+    ]).then(answer => {
+        const sql = `DELETE FROM department WHERE id = ?`;
+        db.query(sql,answer.department_id, (err,result) => {    
+            if (err) {
+                console.log(err)
+              }
+            else{
+                console.log('Record "'+ answer.department_id +'" has been deleted');
+                choices();
+            }               
+        })
+
+    })
+}
+
+
 const choices = () => {
     inquirer.prompt([
         {
