@@ -304,6 +304,39 @@ const deleteDepartment = () => {
     })
 }
 
+//Adding code to delete role
+const deleteRole = () => {
+
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'role_id',
+            message: 'Select the role id that needs to be deleted',
+            validate: (roleId)=> {
+                if(roleId === ''){
+                    return 'Please enter a role name'
+                }
+                else if(roleId < 0){
+                    return 'Please enter a valid role id'
+                }
+                return true
+            }
+        }
+    ]).then(answer => {
+        const sql = `DELETE FROM role WHERE id = ?`;
+
+        db.query(sql, answer.role_id, (err, result) => {
+            if (err){
+                console.log(err);
+            }
+            else{
+                console.log('Record "' + answer.role_id + '" has been deleted');
+                choices();
+            }
+        })
+    })
+}
+
 
 const choices = () => {
     inquirer.prompt([
@@ -350,8 +383,26 @@ const choices = () => {
         else if (optionsForUser === 'Update an Employee Role'){
 
         }
+        else if (optionsForUser === 'View employees by manager'){
+
+        }
+        else if (optionsForUser === 'View employees by department'){
+
+        }
         else if(optionsForUser === 'Delete departments'){
             deleteDepartment();
+        }
+        else if(optionsForUser === 'Delete role'){
+            deleteRole();
+        }
+        else if(optionsForUser === 'Delete employee'){
+            
+        }
+        else if(optionsForUser === 'View Combined salaries of all employees'){
+            
+        }
+        else if(optionsForUser === 'Delete employee'){
+            
         }
 
         else if (optionsForUser === 'Quit'){
