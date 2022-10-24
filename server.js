@@ -271,6 +271,28 @@ const employee = () => {
     })
 }
 
+//Adding code to Update an Employee Role
+const updateEmployeeRole = () => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'update_Emp_Role',
+            message: 'Enter the role id of the employee whose role needs to be updated',
+            validate: (updateRoleID) => {
+                if(updateRoleID === '') {
+                    return 'Please enter a role id'
+                }
+                return true
+            }
+        }
+    ]).then(answer => {
+        const sql = `SELECT first_name, role_id FROM employee;
+                     UPDATE employee
+                     SET role_id = ?
+                     WHERE first_name = '?`;
+    })
+}
+
 //Adding code to delete department
 const deleteDepartment = () => {
     
@@ -337,6 +359,38 @@ const deleteRole = () => {
     })
 }
 
+//Adding code to delete employee
+const deleteEmployee = () => {
+
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'employee_Name',
+            message: 'Select the employee that needs to be deleted',
+            validate: (employeeName)=> {
+                if(employeeName === ''){
+                    return 'Please enter a employee name'
+                }
+                return true
+            }
+        }
+    ]).then(answer => {
+        const displayEmployeeTable = `SELECT first_name FROM employee`;
+        const sql = `DELETE FROM employee WHERE first_name = ?`;
+
+        db.query(sql,answer.displayEmployeeTable, answer.employee_Name, (err, result) => {
+            if (err){
+                console.log(err);
+            }
+            else{
+                console.log('Record "' + answer.employee_Name + '" has been deleted');
+                choices();
+            }
+        })
+    })
+}
+
+
 
 const choices = () => {
     inquirer.prompt([
@@ -396,7 +450,7 @@ const choices = () => {
             deleteRole();
         }
         else if(optionsForUser === 'Delete employee'){
-            
+            deleteEmployee();
         }
         else if(optionsForUser === 'View Combined salaries of all employees'){
             
