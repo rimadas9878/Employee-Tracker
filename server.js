@@ -5,7 +5,7 @@ require('dotenv').config()
 const inquirer = require('inquirer');
 
 //Express package makes working with API easy
-const express =  require('express');
+const express = require('express');
 const app = express();
 
 // Express middleware
@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 3001;
 //Listening to PORT 3001
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
-  });
+});
 
 //Import and require mysql2
 const mysql = require('mysql2');
@@ -30,37 +30,37 @@ const db = mysql.createConnection({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
 },
-console.log("Connected to employee_db database")
+    console.log("Connected to employee_db database")
 );
 
 //Code to display Department Table
-const departmentTableDisplay = () =>{
+const departmentTableDisplay = () => {
     console.log("Displaying table content of Department")
     const sql = `SELECT * FROM department`;
-    db.query( sql, (err,result) => {    
+    db.query(sql, (err, result) => {
         if (err) {
             console.log(err)
-          }
-        else{
+        }
+        else {
             console.table(result);
             choices();
-        }               
+        }
     })
 }
 
 //Code to display role Table
-const roleTableDisplay = () =>{
+const roleTableDisplay = () => {
     console.log("Displaying table content of role")
     const sql = `SELECT * FROM role`;
-    db.query(sql, (err,result) => {  
+    db.query(sql, (err, result) => {
         if (err) {
             console.log(err)
-          }
-          else{
+        }
+        else {
             console.table(result);
             choices();
-          }              
-        
+        }
+
     })
 }
 
@@ -68,14 +68,14 @@ const roleTableDisplay = () =>{
 const employeeTableDisplay = () => {
     console.log("Displaying table content of Employee")
     const sql = `SELECT * FROM employee`
-    db.query(sql,(err,result) => {  
+    db.query(sql, (err, result) => {
         if (err) {
             console.log(err)
-          }   
-        else{
+        }
+        else {
             console.table(result);
             choices();
-        }                   
+        }
     })
 }
 
@@ -97,12 +97,12 @@ const addNewDepartmentName = () => {
     ]).then(answer => {
         const sql = `INSERT INTO department(name)
                      VALUE (?)`;
-        
-        db.query(sql, answer.name_Of_Department, (err,result) => {
+
+        db.query(sql, answer.name_Of_Department, (err, result) => {
             if (err) {
                 console.log(err)
             }
-            else{
+            else {
                 console.log('Suceessfully Added "' + answer.name_Of_Department + '" department to the database')
                 choices();
             }
@@ -118,14 +118,15 @@ const addNewRole = () => {
     db.query(sql, (err, result) => {
         if (err) {
             console.log(err);
-          }
-        else{
-            result.forEach(department =>{
+        }
+        else {
+            result.forEach(department => {
                 let departmentOutput = {
                     name: department.name,
                     value: department.id
                 }
                 departmentData.push(departmentOutput);
+                console.log(departmentData);
             });
 
             inquirer.prompt([
@@ -160,27 +161,27 @@ const addNewRole = () => {
             ]).then(roleAnswer => {
                 const sql = `INSERT INTO role (titleRole, salary_in_thousand, department_id)
                              VALUES (?)`
-                
+
                 var roleName = roleAnswer.department;
                 console.log(roleName);
 
 
-                db.query(sql,[[roleAnswer.employee_Role, roleAnswer.employee_Salary, roleAnswer.department]], (err, result) => {
-                    
-                    if (err){
+                db.query(sql, [[roleAnswer.employee_Role, roleAnswer.employee_Salary, roleAnswer.department]], (err, result) => {
+
+                    if (err) {
                         console.log(err)
                     }
-                    else{
+                    else {
                         console.log('Successfully added "' + roleAnswer.employee_Role + '" role to the database');
                         choices();
                     }
-                } )
+                })
             })
         }
     })
 
 };
-        
+
 
 
 //Code to add an employee
@@ -188,26 +189,26 @@ const employee = () => {
     const outputForRole = [];
     const roleDatabaseOutput = `SELECT * FROM role`;
 
-    db.query(roleDatabaseOutput, (err,result) =>{
+    db.query(roleDatabaseOutput, (err, result) => {
         if (err) {
             console.log(err);
-          }
-        else{
+        }
+        else {
             result.forEach(role => {
                 let roleOutput = {
                     name: role.titleRole,
-                    value: role.id                  
+                    value: role.id
                 }
                 outputForRole.push(roleOutput);
             })
             const managerRole = [];
             const outputFromEmployeeTable = `SELECT * FROM employee`;
-        
-            db.query(outputFromEmployeeTable, (err,result) =>{
+
+            db.query(outputFromEmployeeTable, (err, result) => {
                 if (err) {
                     console.log(err);
-                  }
-                else{
+                }
+                else {
                     result.forEach(employee => {
                         let managerOutput = {
                             name: employee.first_name + " " + employee.last_name,
@@ -260,72 +261,74 @@ const employee = () => {
 
                         let empManager = answer.employee_Manager;
                         console.log(empManager);
-                
-                        db.query(sql, [[answer.employee_First_Name, answer.employee_Last_Name, answer.employee_Role, answer.employee_Manager]], (err,result) => {
-                            if (err){
+
+                        db.query(sql, [[answer.employee_First_Name, answer.employee_Last_Name, answer.employee_Role, answer.employee_Manager]], (err, result) => {
+                            if (err) {
                                 console.log(err)
                             }
-                            else{
-                                
+                            else {
+
                                 console.log('Successfully added a new Employee to the database');
                                 choices();
                             }
                         });
-                
+
                     })
                 }
 
 
-            })          
+            })
         }
     })
 }
 
 //Code to Update an Employee Role
 const updateEmployeeRole = () => {
+
     inquirer.prompt([
         {
             type: 'input',
-            name: 'update_Emp_Role',
-            message: 'Enter the role id to which employees role needs to be updated',
-            validate: (updateRoleID) => {
-                if(updateRoleID === '') {
-                    return 'Please enter a role id'
+            name: 'role_id',
+            message: "Enter the Role ID",
+            validate: (updateRoleIdOfTheEmp) => {
+                if (updateRoleIdOfTheEmp === '') {
+                    return 'What will be the new role id of the employee>'
                 }
                 return true
             }
         },
         {
             type: 'input',
-            name: 'emp_name_tobe_update',
-            message: "Enter the employee's name whoese role needs to be updated",
-            validate: (empNameRoleToBeUpdated) => {
-                if(empNameRoleToBeUpdated === '') {
-                    return 'Employee First name is required to update the role'
+            name: 'first_name',
+            message: 'What is the name of the employee whose role needs to be updated?',
+            validate: (empNameForRoleUpdation) => {
+                if (empNameForRoleUpdation === '') {
+                    return 'Please enter a role id'
                 }
                 return true
             }
-        }
-    ]).then(answer => {
-        const sql = `UPDATE employee
-                     SET role_id = ?
-                     WHERE first_name = '?`;
+        }       
+    ])
+        .then(answer => {
+            console.log(answer);
+            const sql = `UPDATE employee SET role_id = ? WHERE first_name = ?`;
 
-        db.query(sql, answer.update_Emp_Role, answer.emp_name_tobe_update,(err, result) => {
-            if(err){
-                console.log(err)
-            }else{
-                console.log('Record has been updated')
-                choices();
-            }
-            
+
+            db.query(sql, [[answer.role_id], [answer.first_name]], (err, result) => {
+                if (err) {
+                    console.log(err)
+                } else {
+                    console.log(answer.first_name +"'s roll id has been updated to " + answer.role_id);
+                    choices();
+                }
+
+            })
         })
-    })
 }
 
 //Adding code to delete department
 const deleteDepartment = () => {
-    
+
     inquirer.prompt([
         {
             type: 'input',
@@ -335,7 +338,7 @@ const deleteDepartment = () => {
                 if (DepartmentID === '') {
                     return 'Please enter a department id'
                 }
-                else if(DepartmentID < 0){
+                else if (DepartmentID < 0) {
                     return 'Please enter a valid department id'
                 }
                 return true
@@ -343,14 +346,14 @@ const deleteDepartment = () => {
         }
     ]).then(answer => {
         const sql = `DELETE FROM department WHERE id = ?`;
-        db.query(sql,answer.department_id, (err,result) => {    
+        db.query(sql, answer.department_id, (err, result) => {
             if (err) {
                 console.log(err)
-              }
-            else{
-                console.log('Record "'+ answer.department_id +'" has been deleted');
+            }
+            else {
+                console.log('Record "' + answer.department_id + '" has been deleted');
                 choices();
-            }               
+            }
         })
 
     })
@@ -364,11 +367,11 @@ const deleteRole = () => {
             type: 'input',
             name: 'role_id',
             message: 'Select the role id that needs to be deleted',
-            validate: (roleId)=> {
-                if(roleId === ''){
+            validate: (roleId) => {
+                if (roleId === '') {
                     return 'Please enter a role name'
                 }
-                else if(roleId < 0){
+                else if (roleId < 0) {
                     return 'Please enter a valid role id'
                 }
                 return true
@@ -378,10 +381,10 @@ const deleteRole = () => {
         const sql = `DELETE FROM role WHERE id = ?`;
 
         db.query(sql, answer.role_id, (err, result) => {
-            if (err){
+            if (err) {
                 console.log(err);
             }
-            else{
+            else {
                 console.log('Record "' + answer.role_id + '" has been deleted');
                 choices();
             }
@@ -397,8 +400,8 @@ const deleteEmployee = () => {
             type: 'input',
             name: 'employee_Name',
             message: 'Select the employee that needs to be deleted',
-            validate: (employeeName)=> {
-                if(employeeName === ''){
+            validate: (employeeName) => {
+                if (employeeName === '') {
                     return 'Please enter a employee name'
                 }
                 return true
@@ -408,11 +411,11 @@ const deleteEmployee = () => {
         const displayEmployeeTable = `SELECT first_name FROM employee`;
         const sql = `DELETE FROM employee WHERE first_name = ?`;
 
-        db.query(sql,answer.displayEmployeeTable, answer.employee_Name, (err, result) => {
-            if (err){
+        db.query(sql, answer.displayEmployeeTable, answer.employee_Name, (err, result) => {
+            if (err) {
                 console.log(err);
             }
-            else{
+            else {
                 console.log('Record "' + answer.employee_Name + '" has been deleted');
                 choices();
             }
@@ -428,71 +431,71 @@ const choices = () => {
             type: 'list',
             name: 'optionsForUser',
             message: 'Which option would you like to select?',
-            choices: ['View All Departments', 
-                      'View All Roles', 
-                      'View All Employees', 
-                      'Add a Department', 
-                      'Add a Role', 
-                      'Add an Employee', 
-                      'Update an Employee Role', 
-                      'Update an Employee Manager',
-                      'View employees by manager',
-                      'View employees by department',
-                      'Delete departments',
-                      'Delete role',
-                      'Delete employee',
-                      'View Combined salaries of all employees',
-                      'Quit'],
+            choices: ['View All Departments',
+                'View All Roles',
+                'View All Employees',
+                'Add a Department',
+                'Add a Role',
+                'Add an Employee',
+                'Update an Employee Role',
+                'Update an Employee Manager',
+                'View employees by manager',
+                'View employees by department',
+                'Delete departments',
+                'Delete role',
+                'Delete employee',
+                'View Combined salaries of all employees',
+                'Quit'],
         }
-    ]).then(({optionsForUser}) => {       
-        if(optionsForUser === 'View All Departments'){
+    ]).then(({ optionsForUser }) => {
+        if (optionsForUser === 'View All Departments') {
             departmentTableDisplay();
         }
-        else if (optionsForUser === 'View All Roles'){
+        else if (optionsForUser === 'View All Roles') {
             roleTableDisplay();
         }
-        else if (optionsForUser === 'View All Employees'){
+        else if (optionsForUser === 'View All Employees') {
             employeeTableDisplay();
         }
-        else if (optionsForUser === 'Add a Department'){
+        else if (optionsForUser === 'Add a Department') {
             addNewDepartmentName();
 
         }
-        else if (optionsForUser === 'Add a Role'){
+        else if (optionsForUser === 'Add a Role') {
             addNewRole();
         }
-        else if (optionsForUser === 'Add an Employee'){
+        else if (optionsForUser === 'Add an Employee') {
             employee();
         }
-        else if (optionsForUser === 'Update an Employee Role'){
+        else if (optionsForUser === 'Update an Employee Role') {
             updateEmployeeRole();
         }
-        else if (optionsForUser === 'View employees by manager'){
+        else if (optionsForUser === 'View employees by manager') {
 
         }
-        else if (optionsForUser === 'View employees by department'){
+        else if (optionsForUser === 'View employees by department') {
 
         }
-        else if(optionsForUser === 'Delete departments'){
+        else if (optionsForUser === 'Delete departments') {
             deleteDepartment();
         }
-        else if(optionsForUser === 'Delete role'){
+        else if (optionsForUser === 'Delete role') {
             deleteRole();
         }
-        else if(optionsForUser === 'Delete employee'){
+        else if (optionsForUser === 'Delete employee') {
             deleteEmployee();
         }
-        else if(optionsForUser === 'View Combined salaries of all employees'){
-            
+        else if (optionsForUser === 'View Combined salaries of all employees') {
+
         }
-        else if(optionsForUser === 'Delete employee'){
-            
+        else if (optionsForUser === 'Delete employee') {
+
         }
 
-        else if (optionsForUser === 'Quit'){
+        else if (optionsForUser === 'Quit') {
             db.process;
         }
-        
+
     })
 }
 
