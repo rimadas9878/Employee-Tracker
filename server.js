@@ -160,10 +160,13 @@ const addNewRole = () => {
             ]).then(roleAnswer => {
                 const sql = `INSERT INTO role (titleRole, salary_in_thousand, department_id)
                              VALUES (?)`
+                
+                var roleName = roleAnswer.department;
+                console.log(roleName);
 
-                const addedRole = 
 
-                db.query(sql,[[roleAnswer.employee_Role, roleAnswer.employee_Salary, roleAnswer.department.id]], (err, result) => {
+                db.query(sql,[[roleAnswer.employee_Role, roleAnswer.employee_Salary, roleAnswer.department]], (err, result) => {
+                    
                     if (err){
                         console.log(err)
                     }
@@ -193,103 +196,127 @@ const employee = () => {
             result.forEach(role => {
                 let roleOutput = {
                     id: role.id,
-                    titleRole: role.titleRole,
+                    name: role.titleRole,
                 }
                 outputForRole.push(roleOutput);
             })
-        }
-    })
-
-    const managerRole = [];
-    const outputFromEmployeeTable = `SELECT * FROM employee`;
-
-    db.query(outputFromEmployeeTable, (err,result) =>{
-        if (err) {
-            console.log(err);
-          }
-        else{
-            result.forEach(employee => {
-                let managerOutput = {
-                    id: employee.id,
-                    first_name: employee.first_name,
-                    last_name: employee.last_name
-                }
-                managerRole.push(managerOutput);
-            })
-        }
-    })
-
-    inquirer.prompt([
-        {
-            type: 'input',
-            name: 'employee_First_Name',
-            message: 'Enter the first name of the employee',
-            validate: (employeeFirstName) => {
-                if (employeeFirstName === '') {
-                    return 'Please enter the first name of the employee'
-                }
-                return true
-            }
-        },
-        {
-            type: 'input',
-            name: 'employee_Last_Name',
-            message: 'Enter the last name of the employee',
-            validate: (employeeLastName) => {
-                if (employeeLastName === '') {
-                    return 'Please enter the last name of the employee'
-                }
-                return true
-            }
-        },
-        {
-            type: 'list',
-            name: 'employee_Role',
-            message: 'Select the employee role',
-            choices: outputForRole
-        },
-        {
-            type: 'list',
-            name: 'employee_Manager',
-            message: 'Select the Manager of the added employee',
-            choices: managerRole
-        }
-    ]).then(answer => {
-        const sql = `INSERT INTO employee(first_name, last_name, role_id, manager_id)`
-
-        db.query(sql, [[answer.employee_First_Name, answer.employee_Last_Name, answer.employee_Role, answer.employee_Manager]], (err,result) => {
-            if (err){
-                console.log(err)
-            }
-            else{
+            const managerRole = [];
+            const outputFromEmployeeTable = `SELECT * FROM employee`;
+        
+            db.query(outputFromEmployeeTable, (err,result) =>{
+                if (err) {
+                    console.log(err);
+                  }
+                else{
+                    result.forEach(employee => {
+                        let managerOutput = {
+                            id: employee.id,
+                            name: employee.first_name + " " + employee.last_name
+                        }
+                        managerRole.push(managerOutput);
+                    })
+                    console.log(managerRole);
+                    inquirer.prompt([
+                        {
+                            type: 'input',
+                            name: 'employee_First_Name',
+                            message: 'Enter the first name of the employee',
+                            validate: (employeeFirstName) => {
+                                if (employeeFirstName === '') {
+                                    return 'Please enter the first name of the employee'
+                                }
+                                return true
+                            }
+                        },
+                        {
+                            type: 'input',
+                            name: 'employee_Last_Name',
+                            message: 'Enter the last name of the employee',
+                            validate: (employeeLastName) => {
+                                if (employeeLastName === '') {
+                                    return 'Please enter the last name of the employee'
+                                }
+                                return true
+                            }
+                        },
+                        {
+                            type: 'list',
+                            name: 'employee_Role',
+                            message: 'Select the employee role',
+                            choices: outputForRole
+                        },
+                        {
+                            type: 'list',
+                            name: 'employee_Manager',
+                            message: 'Select the Manager of the added employee',
+                            choices: managerRole
+                        }
+                    ]).then(answer => {
+                        const sql = `INSERT INTO employee(first_name, last_name, role_id, manager_id)
+                                     VALUE(?)`;
                 
-                console.log('Successfully added "' + answer.first_name + '" to the employee database');
-                choices();
-            }
-        });
+                        db.query(sql, [[answer.employee_First_Name, answer.employee_Last_Name, answer.employee_Role, answer.employee_Manager]], (err,result) => {
+                            if (err){
+                                console.log(err)
+                            }
+                            else{
+                                
+                                console.log('Successfully added "' + answer.first_name + '" to the employee database');
+                                choices();
+                            }
+                        });
+                
+                    })
+                }
 
+
+            })          
+        }
     })
+
+
+
 }
 
-//Adding code to Update an Employee Role
+//Code to Update an Employee Role
 const updateEmployeeRole = () => {
     inquirer.prompt([
         {
             type: 'input',
             name: 'update_Emp_Role',
-            message: 'Enter the role id of the employee whose role needs to be updated',
+            message: 'Enter the role id to which employees role needs to be updated',
             validate: (updateRoleID) => {
                 if(updateRoleID === '') {
                     return 'Please enter a role id'
                 }
                 return true
             }
+        },
+        {
+            type: 'input',
+            name: 'emp_name_tobe_update',
+            message: "Enter the employee's name whoese role needs to be updated",
+            validate: (empNameRoleToBeUpdated) => {
+                if(empNameRoleToBeUpdated === '') {
+                    return 'Employee First name is required to update the role'
+                }
+                return true
+            }
         }
     ]).then(answer => {
-        const sql = `SELECT first_name, role_id FROM employee;
-                     UPDATE employee
+        const sql = `UPDATE employee
                      SET role_id = ?
                      WHERE first_name = '?`;
+
+        db.query(sql, answer.update_Emp_Role, answer.emp_name_tobe_update,(err, result) => {
+            if(err){
+                console.log(err)
+            }else{
+                console.log('Record has been updated')
+                choices();
+            }
+            
+        })
     })
 }
 
@@ -435,7 +462,7 @@ const choices = () => {
             employee();
         }
         else if (optionsForUser === 'Update an Employee Role'){
-
+            updateEmployeeRole();
         }
         else if (optionsForUser === 'View employees by manager'){
 
