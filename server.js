@@ -33,9 +33,9 @@ const db = mysql.createConnection({
     console.log("Connected to employee_db database")
 );
 
-//Code to display Department Table
+//Code to display data from "Department" Table
 const departmentTableDisplay = () => {
-    console.log("Displaying table content of Department")
+    console.log("Displaying data from 'Department' table")
     const sql = `SELECT * FROM department`;
     db.query(sql, (err, result) => {
         if (err) {
@@ -48,9 +48,9 @@ const departmentTableDisplay = () => {
     })
 }
 
-//Code to display role Table
+//Code to display data from "Role" Table
 const roleTableDisplay = () => {
-    console.log("Displaying table content of role")
+    console.log("Displaying data from 'role' table")
     const sql = `SELECT * FROM role`;
     db.query(sql, (err, result) => {
         if (err) {
@@ -64,9 +64,9 @@ const roleTableDisplay = () => {
     })
 }
 
-//Code to display employee Table
+//Code to display data from Employee Table
 const employeeTableDisplay = () => {
-    console.log("Displaying table content of Employee")
+    console.log("Displaying data from 'Employee' table")
     const sql = `SELECT * FROM employee`
     db.query(sql, (err, result) => {
         if (err) {
@@ -80,16 +80,16 @@ const employeeTableDisplay = () => {
 }
 
 
-//Code to add a new department
+//Code to add a new department in the table
 const addNewDepartmentName = () => {
     inquirer.prompt([
         {
             type: 'input',
             name: 'name_Of_Department',
-            message: 'Enter the name of the department',
+            message: 'What is the name of the department?',
             validate: (nameOfDepartment) => {
                 if (nameOfDepartment === '') {
-                    return 'Please enter name of the department'
+                    return 'Department name cannot be left blank'
                 }
                 return true
             }
@@ -111,7 +111,7 @@ const addNewDepartmentName = () => {
     })
 }
 
-//Code to add a new role
+//Code to add a new role in the table
 const addNewRole = () => {
     const departmentData = [];
     const sql = `SELECT id, name FROM department`;
@@ -126,7 +126,6 @@ const addNewRole = () => {
                     value: department.id
                 }
                 departmentData.push(departmentOutput);
-                console.log(departmentData);
             });
 
             inquirer.prompt([
@@ -161,10 +160,6 @@ const addNewRole = () => {
             ]).then(roleAnswer => {
                 const sql = `INSERT INTO role (titleRole, salary_in_thousand, department_id)
                              VALUES (?)`
-
-                var roleName = roleAnswer.department;
-                console.log(roleName);
-
 
                 db.query(sql, [[roleAnswer.employee_Role, roleAnswer.employee_Salary, roleAnswer.department]], (err, result) => {
 
@@ -256,12 +251,6 @@ const employee = () => {
                         const sql = `INSERT INTO employee(first_name, last_name, role_id, manager_id)
                                      VALUE(?)`;
 
-                        let empRole = answer.employee_Role;
-                        console.log(empRole);
-
-                        let empManager = answer.employee_Manager;
-                        console.log(empManager);
-
                         db.query(sql, [[answer.employee_First_Name, answer.employee_Last_Name, answer.employee_Role, answer.employee_Manager]], (err, result) => {
                             if (err) {
                                 console.log(err)
@@ -329,7 +318,7 @@ const updateEmployeeRole = () => {
 
 //Code to Update an Manager 
 const updatemanager = () => {
-console.log("Manager");
+
     inquirer.prompt([
         {
             type: 'input',
@@ -484,10 +473,10 @@ const deleteEmployee = () => {
             }
         }
     ]).then(answer => {
-        const displayEmployeeTable = `SELECT first_name FROM employee`;
+        
         const sql = `DELETE FROM employee WHERE first_name = ?`;
 
-        db.query(sql, answer.displayEmployeeTable, answer.employee_Name, (err, result) => {
+        db.query(sql, answer.employee_Name, (err, result) => {
             if (err) {
                 console.log(err);
             }
@@ -564,7 +553,6 @@ const choices = () => {
         }
         else if (optionsForUser === 'Add a Department') {
             addNewDepartmentName();
-
         }
         else if (optionsForUser === 'Add a Role') {
             addNewRole();
