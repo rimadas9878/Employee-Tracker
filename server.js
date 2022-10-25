@@ -499,6 +499,35 @@ const deleteEmployee = () => {
     })
 }
 
+//Code for total budget of all the employess in a departmant
+const totalBudget = () => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'department.id',
+            message: 'What is the ID of the department to know that total budget',
+            validate: (deptId) => {
+                if (deptId === '') {
+                    return 'Please enter the department Id'
+                }
+                return true
+            }
+        }
+    ]).then(answer => {
+
+            const sql = `SELECT SUM(salary_in_thousand) as Total FROM role WHERE department_id = ?`;
+
+            db.query(sql, answer.department.id, (err,result) => {
+                if(err){
+                    console.log(err);
+                }
+                else{
+                    console.log(result);
+                    choices();
+                }
+            })
+        })
+}
 
 
 const choices = () => {
@@ -565,10 +594,10 @@ const choices = () => {
             deleteEmployee();
         }
         else if (optionsForUser === 'View Combined salaries of all employees') {
-
+            totalBudget();
         }
         else if (optionsForUser === 'Quit') {
-            
+            process.exit();
         }
 
     })
