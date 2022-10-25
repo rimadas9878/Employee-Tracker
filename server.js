@@ -370,6 +370,38 @@ console.log("Manager");
         })
 }
 
+//Code for OrderBy Manager
+const orderByManager = () => {
+    const sql = `SELECT * FROM employee ORDER BY manager_id asc`;
+
+    db.query(sql, (err,result) => {
+        if(err){
+            console.log(err);
+        }
+        else{
+            console.table(result);
+            choices();
+        }
+        
+    })
+}
+
+//Code for OrderBy Department
+const orderByDepartment = () => {
+    const sql = `SELECT * FROM role ORDER BY department_id desc`;
+
+    db.query(sql, (err,result) => {
+        if(err){
+            console.log(err);
+        }
+        else{
+            console.table(result);
+            choices();
+        }
+        
+    })
+}
+
 //Adding code to delete department
 const deleteDepartment = () => {
 
@@ -517,8 +549,11 @@ const choices = () => {
         else if (optionsForUser === 'Update an Employee Manager') {
             updatemanager();
         }
+        else if (optionsForUser === 'View employees by manager') {
+            orderByManager();
+        }       
         else if (optionsForUser === 'View employees by department') {
-
+            orderByDepartment();
         }
         else if (optionsForUser === 'Delete departments') {
             deleteDepartment();
@@ -532,10 +567,6 @@ const choices = () => {
         else if (optionsForUser === 'View Combined salaries of all employees') {
 
         }
-        else if (optionsForUser === 'Delete employee') {
-
-        }
-
         else if (optionsForUser === 'Quit') {
             
         }
