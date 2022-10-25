@@ -292,7 +292,7 @@ const updateEmployeeRole = () => {
             message: "Enter the Role ID",
             validate: (updateRoleIdOfTheEmp) => {
                 if (updateRoleIdOfTheEmp === '') {
-                    return 'What will be the new role id of the employee>'
+                    return 'What will be the new role id of the employee'
                 }
                 return true
             }
@@ -319,6 +319,50 @@ const updateEmployeeRole = () => {
                     console.log(err)
                 } else {
                     console.log(answer.first_name +"'s roll id has been updated to " + answer.role_id);
+                    choices();
+                }
+
+            })
+        })
+}
+
+
+//Code to Update an Manager 
+const updatemanager = () => {
+console.log("Manager");
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'manager_id',
+            message: "Enter the Manager ID",
+            validate: (updateManger) => {
+                if (updateManger === '') {
+                    return 'What is the ID of the new manager?'
+                }
+                return true
+            }
+        },
+        {
+            type: 'input',
+            name: 'first_name',
+            message: 'What is the name of the employee whose manager needs to be updated?',
+            validate: (empNameForManagerUpdation) => {
+                if (empNameForManagerUpdation === '') {
+                    return 'Please enter a the first name'
+                }
+                return true
+            }
+        }       
+    ])
+        .then(answer => {
+            console.log(answer);
+            const sql = `UPDATE employee SET manager_id = ? WHERE first_name = ?`;
+
+            db.query(sql, [[answer.manager_id], [answer.first_name]], (err, result) => {
+                if (err) {
+                    console.log(err)
+                } else {
+                    console.log(answer.first_name +"'s new manager's id is " + answer.manager_id);
                     choices();
                 }
 
@@ -470,8 +514,8 @@ const choices = () => {
         else if (optionsForUser === 'Update an Employee Role') {
             updateEmployeeRole();
         }
-        else if (optionsForUser === 'View employees by manager') {
-
+        else if (optionsForUser === 'Update an Employee Manager') {
+            updatemanager();
         }
         else if (optionsForUser === 'View employees by department') {
 
@@ -493,7 +537,7 @@ const choices = () => {
         }
 
         else if (optionsForUser === 'Quit') {
-            db.process;
+            
         }
 
     })
