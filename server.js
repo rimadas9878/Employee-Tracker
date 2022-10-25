@@ -123,7 +123,7 @@ const addNewRole = () => {
             result.forEach(department =>{
                 let departmentOutput = {
                     name: department.name,
-                    id: department.id
+                    value: department.id
                 }
                 departmentData.push(departmentOutput);
             });
@@ -195,8 +195,8 @@ const employee = () => {
         else{
             result.forEach(role => {
                 let roleOutput = {
-                    id: role.id,
                     name: role.titleRole,
+                    value: role.id                  
                 }
                 outputForRole.push(roleOutput);
             })
@@ -210,8 +210,8 @@ const employee = () => {
                 else{
                     result.forEach(employee => {
                         let managerOutput = {
-                            id: employee.id,
-                            name: employee.first_name + " " + employee.last_name
+                            name: employee.first_name + " " + employee.last_name,
+                            value: employee.id,
                         }
                         managerRole.push(managerOutput);
                     })
@@ -254,6 +254,12 @@ const employee = () => {
                     ]).then(answer => {
                         const sql = `INSERT INTO employee(first_name, last_name, role_id, manager_id)
                                      VALUE(?)`;
+
+                        let empRole = answer.employee_Role;
+                        console.log(empRole);
+
+                        let empManager = answer.employee_Manager;
+                        console.log(empManager);
                 
                         db.query(sql, [[answer.employee_First_Name, answer.employee_Last_Name, answer.employee_Role, answer.employee_Manager]], (err,result) => {
                             if (err){
@@ -261,7 +267,7 @@ const employee = () => {
                             }
                             else{
                                 
-                                console.log('Successfully added "' + answer.first_name + '" to the employee database');
+                                console.log('Successfully added a new Employee to the database');
                                 choices();
                             }
                         });
@@ -273,9 +279,6 @@ const employee = () => {
             })          
         }
     })
-
-
-
 }
 
 //Code to Update an Employee Role
@@ -487,7 +490,7 @@ const choices = () => {
         }
 
         else if (optionsForUser === 'Quit'){
-            return false;
+            db.process;
         }
         
     })
